@@ -2,6 +2,7 @@ package com.caal.DataLoggerApp.IMUServices;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import com.caal.DataLoggerApp.FileGenerator;
 import com.caal.DataLoggerApp.Utils;
 
+import java.util.Objects;
 import java.util.TimerTask;
 
 public class IMUTimerTask extends TimerTask {
@@ -78,7 +80,7 @@ public class IMUTimerTask extends TimerTask {
         mTimerHandler.post(new Runnable() {
             @Override
             public void run() {
-                //Looper.prepare();
+
                 long interval = System.nanoTime()-oldTime;
                 oldTime = System.nanoTime();
                 Log.d(TAG,"IMU TASK took : " +  interval/1000000 + "mS\n");
@@ -95,23 +97,7 @@ public class IMUTimerTask extends TimerTask {
                 }
             }
         });
-        /* This handler receives a message from the main thread to order a timer shutdown */
-        ShutdownIMUStorageHandler = new Handler(){
-            @SuppressLint("HandlerLeak")
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                switch (msg.what) {
-                    case EXAMPLE_TASK:
-                        Log.d(TAG, "Example Task, arg1: " + msg.arg1 + ", obj: " + msg.obj);
-                        for (int i = 0; i < 4; i++) {
-                            Log.d(TAG, "handleMessage: " + i);
-                            SystemClock.sleep(1000);
-                        }
-                        break;
-                }
-            }
-        };
-        Looper.loop();
+
     }
 
     /**
@@ -132,22 +118,31 @@ public class IMUTimerTask extends TimerTask {
     }
 
      private void saveAccel2File(){
-        /*copy the currently running accel storage data to a local variable */
-        AccelStorage local_accelStorage = new AccelStorage(accelStorage);
+        if(accelStorage!=null){
+            /*copy the currently running accel storage data to a local variable */
+            AccelStorage local_accelStorage = new AccelStorage(accelStorage);
 
-        FileGenerator local_fileGenerator = new FileGenerator();
-        /* Start the thread with Handler.post*/
-        fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_"+
-                IMUTASK_PERIOD + "_ms", local_accelStorage,
-                mForegroundContext, AccelFileIterator));
-        /* Increment iterator */
-        AccelFileIterator++;
-        /* The data was passed to the Runnable, now we can clean the Storage lists */
-        accelStorage.clearAccelStorage();
+            FileGenerator local_fileGenerator = new FileGenerator();
+            /* Start the thread with Handler.post*/
+            fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_"+
+                    IMUTASK_PERIOD + "_ms", local_accelStorage,
+                    mForegroundContext, AccelFileIterator));
+            /* Increment iterator */
+            AccelFileIterator++;
+            /* The data was passed to the Runnable, now we can clean the Storage lists */
+            accelStorage.clearAccelStorage();
+        }
     }
 
     public AccelStorage getAccelStorage(){
-        return accelStorage;
+            if(accelStorage == null){
+                return null;
+            }
+            else{
+                return accelStorage;
+            }
+
+
     }
 
     public static int getAccelFileIterator(){

@@ -488,24 +488,19 @@ public class ForegroundService extends Service {
     }
     //TODO: Create a method to save IMU data
     private void savelastIMU2File(){
-        /*copy the currently running accel storage data to a local variable */
-        AccelStorage local_accelStorage = new AccelStorage(mIMUTimerTask.getAccelStorage());
-        FileGenerator local_fileGenerator = new FileGenerator();
-        /* Start the thread with Handler.post*/
-        fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_"+
-                IMUTASK_PERIOD + "_ms", local_accelStorage,
-                this, IMUTimerTask.getAccelFileIterator()));
+        if(mIMUTimerTask != null){
+            if(mIMUTimerTask.getAccelStorage()!=null){
+                /*copy the currently running accel storage data to a local variable */
+                AccelStorage local_accelStorage = new AccelStorage(mIMUTimerTask.getAccelStorage());
+                FileGenerator local_fileGenerator = new FileGenerator();
+                /* Start the thread with Handler.post*/
+                fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_"+
+                        IMUTASK_PERIOD + "_ms", local_accelStorage,
+                        this, IMUTimerTask.getAccelFileIterator()));
+            }
+        }
     }
 
-    /**
-     *  Save the final IMU data
-     */
-    private void saveLastIMUData(){
-        Message msg = Message.obtain(mIMUTimerTask.ShutdownIMUStorageHandler);
-        msg.what = EXAMPLE_TASK;
-        msg.arg1 = 23;
-        msg.obj = "Obj String";
-    }
 
     /**
      * Stops the IMUTimerTask timer
