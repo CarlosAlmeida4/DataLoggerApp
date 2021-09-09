@@ -12,7 +12,7 @@
 -->
 
 <resources>
-    <string name="app_name">Location Updates ForegroundService</string>
+    <string name="app_name">DataLoggerGPXAPX</string>
 
     <string name="launch_activity">Launch activity</string>
     <string name="location_unknown">Location unknown</string>
