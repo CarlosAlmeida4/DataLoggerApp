@@ -25,6 +25,8 @@ public class AccelStorage {
     List<Float> AccelY;
     List<Float> AccelZ;
     List<String>  WriteString;
+    private long AccelIndex;
+
 
     /*Constructor to create from another object
      In java, when you do object A = object B you are not copying Object B into
@@ -38,15 +40,16 @@ public class AccelStorage {
         this.AccelY = new ArrayList<Float>();
         this.AccelZ = new ArrayList<Float>();
         this.WriteString = new ArrayList<String>();
+        this.AccelIndex = 0;
     }
     /* For the local copy */
-    public AccelStorage(AccelStorage AcSt){
+    public AccelStorage(AccelStorage AcSt) {
         this.AccelX = new ArrayList<Float>(AcSt.AccelX);
         this.AccelY = new ArrayList<Float>(AcSt.AccelY);
         this.AccelZ = new ArrayList<Float>(AcSt.AccelZ);
         this.WriteString = new ArrayList<String>(AcSt.WriteString);
+        this.AccelIndex = AcSt.AccelIndex;
     }
-
 
     public void clearAccelStorage(){
         AccelX.clear();
@@ -68,8 +71,9 @@ public class AccelStorage {
 
     private void addToString(Float accelx,Float accely,Float accelz){
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
-        String toAdd = "<trkpt X=\"" + accelx + "\" Y=\"" + accely + "\" Z=\"" + accelz + "\"></trkpt>\n";
+        String toAdd = "<trkpt X=\"" + accelx + "\" Y=\"" + accely + "\" Z=\"" + accelz + "\" Index = \"" + AccelIndex + "\"></trkpt>\n";
         WriteString.add(toAdd);
+        AccelIndex++;
     }
 
 }
