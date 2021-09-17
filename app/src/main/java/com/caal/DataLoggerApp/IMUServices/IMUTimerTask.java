@@ -36,7 +36,7 @@ public class IMUTimerTask extends TimerTask {
      *  Custom classes of this projects
      */
     private IMUdata SensorData;
-
+    private MagStorage magStorage;
     private AccelStorage accelStorage;
 
     /* cyclic call to store IMU data, defaults to 1 second used in the filename*/
@@ -67,7 +67,7 @@ public class IMUTimerTask extends TimerTask {
 
         IMUTASK_PERIOD = (int) Period;
 
-        /**
+        /*
          * Handler thread for the FileWriting stuff
          */
         fileWriterHandlerThread.start();
@@ -87,7 +87,9 @@ public class IMUTimerTask extends TimerTask {
 
                 IMUFileLine++;
                 String[] ret_val = saveAccel();
-                String NotifMessage = " X = " + ret_val[0] + " Y = " + ret_val[1] + " Z= " + ret_val[2];
+                String NotifMessage = " AccelX = " + ret_val[0] + " AccelY = " + ret_val[1] + " AccelZ= " + ret_val[2];
+                ret_val = saveMag();
+                NotifMessage = NotifMessage  + "\n MagX = " + ret_val[0] + " MagY = " + ret_val[1] + " MagZ= " + ret_val[2];
                 Log.d(TAG,NotifMessage);
 
                 //Save to the file and check if its not writing while the shutdown is also writing a file
@@ -114,6 +116,17 @@ public class IMUTimerTask extends TimerTask {
         Float accely = new Float(SensorData.AccelerometerData[1]);
         Float accelz = new Float(SensorData.AccelerometerData[2]);
         accelStorage.addToList(accelx, accely, accelz);
+        return ret_val;
+    }
+
+    /**
+     *
+     */
+    private String[] saveMag(){
+        String[] ret_val = new String[3];
+        ret_val[0] = String.valueOf(SensorData.MagneticData[0]);
+        ret_val[1] = String.valueOf(SensorData.MagneticData[1]);
+        ret_val[2] = String.valueOf(SensorData.MagneticData[2]);
         return ret_val;
     }
 
