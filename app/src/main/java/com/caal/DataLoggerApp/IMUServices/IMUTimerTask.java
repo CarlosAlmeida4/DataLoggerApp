@@ -88,8 +88,10 @@ public class IMUTimerTask extends TimerTask {
                 IMUFileLine++;
                 String[] ret_val = saveAccel();
                 String NotifMessage = " AccelX = " + ret_val[0] + " AccelY = " + ret_val[1] + " AccelZ= " + ret_val[2];
-                ret_val = saveMag();
-                NotifMessage = NotifMessage  + "\n MagX = " + ret_val[0] + " MagY = " + ret_val[1] + " MagZ= " + ret_val[2];
+//                ret_val = saveMag();
+//                NotifMessage = NotifMessage  + "\n MagX = " + ret_val[0] + " MagY = " + ret_val[1] + " MagZ= " + ret_val[2];
+                ret_val = saveLinearAccelerometer();
+                NotifMessage = NotifMessage  + "\n linAccelX = " + ret_val[0] + " linAccelY = " + ret_val[1] + " linAccelZ= " + ret_val[2];
                 Log.d(TAG,NotifMessage);
 
                 //Save to the file and check if its not writing while the shutdown is also writing a file
@@ -120,13 +122,30 @@ public class IMUTimerTask extends TimerTask {
     }
 
     /**
-     *
+     *  gets the magnetic data from the SensorData object
+     *  TODO: implement the MagStorage class
+     *  TODO: might not be needed because this might be redundant data
+     * @return a string with the 3 values of the magnetic sensor
      */
     private String[] saveMag(){
         String[] ret_val = new String[3];
         ret_val[0] = String.valueOf(SensorData.MagneticData[0]);
         ret_val[1] = String.valueOf(SensorData.MagneticData[1]);
         ret_val[2] = String.valueOf(SensorData.MagneticData[2]);
+        return ret_val;
+    }
+
+    /**
+     *  gets the magnetic data from the SensorData object
+     *  TODO: implement the LinearAccelStorage class, if needed
+     *  TODO: might not be needed because this might be redundant data
+     * @return a string with the 3 values of the linear accel sensor
+     */
+    private String[] saveLinearAccelerometer(){
+        String[] ret_val = new String[3];
+        ret_val[1] = String.valueOf(SensorData.linearAccelData[1]);
+        ret_val[2] = String.valueOf(SensorData.linearAccelData[2]);
+        ret_val[0] = String.valueOf(SensorData.linearAccelData[0]);
         return ret_val;
     }
 

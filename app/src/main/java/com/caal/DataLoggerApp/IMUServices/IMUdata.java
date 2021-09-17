@@ -9,7 +9,8 @@ import android.hardware.SensorManager;
 public class IMUdata implements SensorEventListener {
 
     private SensorManager sensorManager;
-    private Sensor Accelerometer,Magnetic,GyroScope,AmbTemp,Humidity;// Sensor declarataion
+    // Sensor declaration
+    private Sensor Accelerometer,Magnetic,GyroScope,AmbTemp,Humidity,Gravity,linearAccelerometer;
     /*
         Data structs to use on the sensor change
      */
@@ -17,6 +18,8 @@ public class IMUdata implements SensorEventListener {
     public float[] MagneticData = new  float[3];
     public float[] GyroscopeData = new  float[3];
     public float[] orientationAngles = new float[3];
+    public float[] GravityData = new float[3];
+    public float[] linearAccelData = new float[3];
     public float AmbTempData;
     public float HumidityData;
     /*
@@ -39,6 +42,8 @@ public class IMUdata implements SensorEventListener {
         GyroScope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         AmbTemp = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
         Humidity = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+        Gravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+        linearAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 
         /*
             Add this class as the sensor event listeners
@@ -48,6 +53,8 @@ public class IMUdata implements SensorEventListener {
         sensorManager.registerListener(this,GyroScope,SensorManager.SENSOR_DELAY_FASTEST);
         sensorManager.registerListener(this,AmbTemp,SensorManager.SENSOR_DELAY_FASTEST);
         sensorManager.registerListener(this,Humidity,SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this,Gravity,sensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(this,linearAccelerometer,sensorManager.SENSOR_DELAY_FASTEST);
     }
 
     /**
@@ -87,7 +94,13 @@ public class IMUdata implements SensorEventListener {
             case Sensor.TYPE_RELATIVE_HUMIDITY:
                 HumidityData = event.values[0];
                 break;
-            default :
+            case Sensor.TYPE_GRAVITY:
+                System.arraycopy(event.values,0,GravityData,0,event.values.length);
+                break;
+            case Sensor.TYPE_LINEAR_ACCELERATION:
+                System.arraycopy(event.values,0,linearAccelData,0,event.values.length);
+                break;
+            default:
                 break;
         }
     }

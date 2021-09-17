@@ -405,7 +405,8 @@ public class ForegroundService extends Service {
     }
 
     private void onNewLocation(Location location) {
-        Log.i(TAG, "New location: " + location);
+        //TODO: removed so it doesnt appear in the log, allowing easier read of other messages
+        //Log.i(TAG, "New location: " + location);
 
         mLocation = location;
 
