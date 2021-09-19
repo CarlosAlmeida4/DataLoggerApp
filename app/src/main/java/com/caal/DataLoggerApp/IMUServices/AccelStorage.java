@@ -58,20 +58,20 @@ public class AccelStorage {
         WriteString.clear();
     }
 
-    public boolean addToList(Float accelx,Float accely,Float accelz){
+    public boolean addToList(Float accelx,Float accely,Float accelz,float deltaInMiliSeconds){
         /*if(LocationList.size() == 10){
             return false;
         }*/
         AccelX.add(accelx);
         AccelY.add(accely);
         AccelZ.add(accelz);
-        addToString(accelx, accely,accelz);
+        addToString(accelx, accely,accelz,deltaInMiliSeconds);
         return true;
     }
 
-    private void addToString(Float accelx,Float accely,Float accelz){
+    private void addToString(Float accelx,Float accely,Float accelz,float deltaInMiliSeconds){
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
-        String toAdd = "<trkpt X=\"" + accelx + "\" Y=\"" + accely + "\" Z=\"" + accelz + "\" Index = \"" + AccelIndex + "\"></trkpt>\n";
+        String toAdd = "<trkpt X=\"" + accelx + "\" Y=\"" + accely + "\" Z=\"" + accelz + "\" delta = \""+ deltaInMiliSeconds +"\" Index = \"" + AccelIndex + "\"></trkpt>\n";
         WriteString.add(toAdd);
         AccelIndex++;
     }

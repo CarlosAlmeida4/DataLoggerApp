@@ -31,13 +31,14 @@ public class IMUTimerTask extends TimerTask {
     private static int IMUFileLine = 0;
     /* NUmber of files created while app is running */
     static int AccelFileIterator = 0;
+    static int LinearAccelFileIterator = 0;
 
     /**
      *  Custom classes of this projects
      */
     private IMUdata SensorData;
     private MagStorage magStorage;
-    private AccelStorage accelStorage;
+    private AccelStorage accelStorage, linearAccelStorage;
 
     /* cyclic call to store IMU data, defaults to 1 second used in the filename*/
     private static int IMUTASK_PERIOD = 1000;
@@ -60,6 +61,7 @@ public class IMUTimerTask extends TimerTask {
         //Init project specific classes
         SensorData = new IMUdata();
         accelStorage = new AccelStorage();
+        linearAccelStorage = new AccelStorage();
 
         mTimerHandler = mTimerHandlerReceived;
         SensorData.IMUdataInit(ForegroundContext);
@@ -86,17 +88,16 @@ public class IMUTimerTask extends TimerTask {
                 Log.d(TAG,"IMU TASK took : " +  interval/1000000 + "mS\n");
 
                 IMUFileLine++;
-                String[] ret_val = saveAccel();
+                String[] ret_val = saveAccel(interval/1000000);
                 String NotifMessage = " AccelX = " + ret_val[0] + " AccelY = " + ret_val[1] + " AccelZ= " + ret_val[2];
-//                ret_val = saveMag();
-//                NotifMessage = NotifMessage  + "\n MagX = " + ret_val[0] + " MagY = " + ret_val[1] + " MagZ= " + ret_val[2];
-                ret_val = saveLinearAccelerometer();
+                ret_val = saveLinearAccelerometer(interval/1000000);
                 NotifMessage = NotifMessage  + "\n linAccelX = " + ret_val[0] + " linAccelY = " + ret_val[1] + " linAccelZ= " + ret_val[2];
                 Log.d(TAG,NotifMessage);
 
                 //Save to the file and check if its not writing while the shutdown is also writing a file
                 if(IMUFileLine == Utils.FILE_MAX_LINES && !isShutdownStage){
                     saveAccel2File();
+                    saveLinearAccel2File();
                     IMUFileLine = 0;
                 }
             }
@@ -109,7 +110,7 @@ public class IMUTimerTask extends TimerTask {
      *
      * @return 3 strings with the value of X Y and Z accel data
      */
-    private String[] saveAccel() {
+    private String[] saveAccel(float deltaInMiliSeconds) {
         String[] ret_val = new String[3];
         ret_val[0] = String.valueOf(SensorData.AccelerometerData[0]);
         ret_val[1] = String.valueOf(SensorData.AccelerometerData[1]);
@@ -117,7 +118,7 @@ public class IMUTimerTask extends TimerTask {
         Float accelx = new Float(SensorData.AccelerometerData[0]);
         Float accely = new Float(SensorData.AccelerometerData[1]);
         Float accelz = new Float(SensorData.AccelerometerData[2]);
-        accelStorage.addToList(accelx, accely, accelz);
+        accelStorage.addToList(accelx, accely, accelz,deltaInMiliSeconds);
         return ret_val;
     }
 
@@ -141,15 +142,19 @@ public class IMUTimerTask extends TimerTask {
      *  TODO: might not be needed because this might be redundant data
      * @return a string with the 3 values of the linear accel sensor
      */
-    private String[] saveLinearAccelerometer(){
+    private String[] saveLinearAccelerometer(float deltaInMiliSeconds){
         String[] ret_val = new String[3];
         ret_val[1] = String.valueOf(SensorData.linearAccelData[1]);
         ret_val[2] = String.valueOf(SensorData.linearAccelData[2]);
         ret_val[0] = String.valueOf(SensorData.linearAccelData[0]);
+        Float linearaccelx = new Float(SensorData.linearAccelData[0]);
+        Float linearaccely = new Float(SensorData.linearAccelData[1]);
+        Float linearaccelz = new Float(SensorData.linearAccelData[2]);
+        linearAccelStorage.addToList(linearaccelx,linearaccely,linearaccelz,deltaInMiliSeconds);
         return ret_val;
     }
 
-     private void saveAccel2File(){
+    private void saveAccel2File(){
         if(accelStorage!=null){
             /*copy the currently running accel storage data to a local variable */
             AccelStorage local_accelStorage = new AccelStorage(accelStorage);
@@ -166,6 +171,24 @@ public class IMUTimerTask extends TimerTask {
         }
     }
 
+
+    private void saveLinearAccel2File() {
+        if(linearAccelStorage!=null){
+            /*copy the currently running accel storage data to a local variable */
+            AccelStorage local_accelStorage = new AccelStorage(linearAccelStorage);
+            FileGenerator local_fileGenerator = new FileGenerator();
+            /* Start the thread with Handler.post*/
+            fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_Linear"+
+                    IMUTASK_PERIOD + "_ms", local_accelStorage,
+                    mForegroundContext, LinearAccelFileIterator));
+            /* Increment iterator */
+            LinearAccelFileIterator++;
+            /* The data was passed to the Runnable, now we can clean the Storage lists */
+            linearAccelStorage.clearAccelStorage();
+        }
+    }
+
+
     public AccelStorage getAccelStorage(){
             if(accelStorage == null){
                 return null;
@@ -173,11 +196,21 @@ public class IMUTimerTask extends TimerTask {
             else{
                 return accelStorage;
             }
+    }
 
-
+    public AccelStorage getLinearAccelStorage(){
+        if(linearAccelStorage == null){
+            return null;
+        }
+        else{
+            return linearAccelStorage;
+        }
     }
 
     public static int getAccelFileIterator(){
         return AccelFileIterator;
+    }
+    public static int getLinearAccelFileIterator(){
+        return LinearAccelFileIterator;
     }
 }

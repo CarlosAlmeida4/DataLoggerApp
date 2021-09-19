@@ -487,7 +487,8 @@ public class ForegroundService extends Service {
         locationStorage.clearLocationStorage();
 
     }
-    //TODO: Create a method to save IMU data
+
+
     private void savelastIMU2File(){
         if(mIMUTimerTask != null){
             if(mIMUTimerTask.getAccelStorage()!=null){
@@ -498,6 +499,15 @@ public class ForegroundService extends Service {
                 fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_"+
                         IMUTASK_PERIOD + "_ms", local_accelStorage,
                         this, IMUTimerTask.getAccelFileIterator()));
+            }
+            if(mIMUTimerTask.getLinearAccelStorage()!=null){
+                /*copy the currently running accel storage data to a local variable */
+                AccelStorage local_accelStorage = new AccelStorage(mIMUTimerTask.getLinearAccelStorage());
+                FileGenerator local_fileGenerator = new FileGenerator();
+                /* Start the thread with Handler.post*/
+                fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_Linear"+
+                        IMUTASK_PERIOD + "_ms", local_accelStorage,
+                        this, IMUTimerTask.getLinearAccelFileIterator()));
             }
         }
     }
