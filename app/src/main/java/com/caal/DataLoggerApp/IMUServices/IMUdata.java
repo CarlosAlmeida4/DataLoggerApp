@@ -5,8 +5,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 public class IMUdata implements SensorEventListener {
+    public static final String TAG = "IMUdata";
 
     private SensorManager sensorManager;
     // Sensor declaration
@@ -20,12 +22,12 @@ public class IMUdata implements SensorEventListener {
     public float[] orientationAngles = new float[3];
     public float[] GravityData = new float[3];
     public float[] linearAccelData = new float[3];
+    public float[] earthAccelData = new float[3];
+
     public float AmbTempData;
     public float HumidityData;
-    /*
-        Rotation Matrix
-     */
-    private float[] rotationMatrix = new float[9];
+
+
 
     public void IMUdataInit(Context context){
         //Initialize everything related with sensors
@@ -96,6 +98,7 @@ public class IMUdata implements SensorEventListener {
                 break;
             case Sensor.TYPE_GRAVITY:
                 System.arraycopy(event.values,0,GravityData,0,event.values.length);
+                updateOrientationAngles();
                 break;
             case Sensor.TYPE_LINEAR_ACCELERATION:
                 System.arraycopy(event.values,0,linearAccelData,0,event.values.length);
@@ -103,6 +106,7 @@ public class IMUdata implements SensorEventListener {
             default:
                 break;
         }
+
     }
 
     /**
@@ -124,15 +128,24 @@ public class IMUdata implements SensorEventListener {
     /**
      *  Update the orientation angles
      */
-    private double updateOrientationAngles(){
+    private void updateOrientationAngles(){
 
-        SensorManager.getRotationMatrix(rotationMatrix,null, AccelerometerData, MagneticData);
-        float[] orientation = SensorManager.getOrientation(rotationMatrix,orientationAngles);
-        double degrees = (Math.toDegrees(orientation[0])+360) % 360.0;
-        double angle = Math.round(degrees * 100)/100;
-
+        float[] R = new float[16], I = new float[16], earthAcc = new float[16];
+        SensorManager.getRotationMatrix(R,I, GravityData, MagneticData);
+        float[] relativacc = new float[4];
+        float[] inv = new float[16];
+        relativacc[0]=AccelerometerData[0];
+        relativacc[1]=AccelerometerData[1];
+        relativacc[2]=AccelerometerData[2];
+        relativacc[3]=0;
+        android.opengl.Matrix.invertM(inv, 0, R, 0);
+        android.opengl.Matrix.multiplyMV(earthAcc, 0, inv, 0, relativacc, 0);
+        Log.d(TAG, "earthAccelData : X = " + earthAcc[0] + " Y  = " + earthAcc[1] + " Z = " + earthAcc[2]);
+        Log.d(TAG, "GravityData : X = " + GravityData[0] + " Y  = " + GravityData[1] + " Z = " + GravityData[2]);
+        Log.d(TAG, "MagneticData : X = " + MagneticData[0] + " Y  = " + MagneticData[1] + " Z = " + MagneticData[2]);
+        Log.d(TAG, "AccelerometerData : X = " + AccelerometerData[0] + " Y  = " + AccelerometerData[1] + " Z = " + AccelerometerData[2]);
         //getDirection(angle);
-        return angle;
+        //return angle;
     }
 
 
