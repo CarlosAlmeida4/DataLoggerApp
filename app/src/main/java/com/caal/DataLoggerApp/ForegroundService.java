@@ -488,7 +488,6 @@ public class ForegroundService extends Service {
 
     }
 
-
     private void savelastIMU2File(){
         if(mIMUTimerTask != null){
             if(mIMUTimerTask.getAccelStorage()!=null){
@@ -509,9 +508,26 @@ public class ForegroundService extends Service {
                         IMUTASK_PERIOD + "_ms", local_accelStorage,
                         this, IMUTimerTask.getLinearAccelFileIterator()));
             }
+            if(mIMUTimerTask.getEarthAccelStorage()!=null){
+                /*copy the currently running accel storage data to a local variable */
+                AccelStorage local_accelStorage = new AccelStorage(mIMUTimerTask.getEarthAccelStorage());
+                FileGenerator local_fileGenerator = new FileGenerator();
+                /* Start the thread with Handler.post*/
+                fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_Earth"+
+                        IMUTASK_PERIOD + "_ms", local_accelStorage,
+                        this, IMUTimerTask.getEarthAccelFileIterator()));
+            }
+            if(mIMUTimerTask.getEarthLinearAccelStorage()!=null){
+                /*copy the currently running accel storage data to a local variable */
+                AccelStorage local_accelStorage = new AccelStorage(mIMUTimerTask.getEarthLinearAccelStorage());
+                FileGenerator local_fileGenerator = new FileGenerator();
+                /* Start the thread with Handler.post*/
+                fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_LinearEarth"+
+                        IMUTASK_PERIOD + "_ms", local_accelStorage,
+                        this, IMUTimerTask.getEarthLinearAccelFileIterator()));
+            }
         }
     }
-
 
     /**
      * Stops the IMUTimerTask timer

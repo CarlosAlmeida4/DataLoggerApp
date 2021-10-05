@@ -77,7 +77,7 @@ public class FileWriteRunnableIMU implements Runnable{
         Log.d(TAG, "Writing file number " + localiterator);
         try {
             local_fileGenerator.storeTrack(local_trackname, local_context, localiterator , local_accelStorage.WriteString);
-            Log.d(TAG, "-------------------------------------------I finished Writing the file number: " + localiterator);
+            Log.d(TAG, "---------" + local_trackname + "I finished Writing the file number: " + localiterator);
         } catch (IOException e) {
             e.printStackTrace();
             Log.d(TAG,"Error Writing file");

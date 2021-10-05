@@ -23,6 +23,7 @@ public class IMUdata implements SensorEventListener {
     public float[] GravityData = new float[3];
     public float[] linearAccelData = new float[3];
     public float[] earthAccelData = new float[3];
+    public float[] linearEarthAccelData = new float[3];
 
     public float AmbTempData;
     public float HumidityData;
@@ -83,6 +84,7 @@ public class IMUdata implements SensorEventListener {
         {
             case Sensor.TYPE_ACCELEROMETER:
                 System.arraycopy(event.values,0,AccelerometerData,0,event.values.length);
+                earthAccelData = calculateEarthAccelData(AccelerometerData);
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
                 System.arraycopy(event.values,0,MagneticData,0,event.values.length);
@@ -98,10 +100,10 @@ public class IMUdata implements SensorEventListener {
                 break;
             case Sensor.TYPE_GRAVITY:
                 System.arraycopy(event.values,0,GravityData,0,event.values.length);
-                updateOrientationAngles();
                 break;
             case Sensor.TYPE_LINEAR_ACCELERATION:
                 System.arraycopy(event.values,0,linearAccelData,0,event.values.length);
+                linearEarthAccelData = calculateEarthAccelData(linearAccelData);
                 break;
             default:
                 break;
@@ -126,26 +128,25 @@ public class IMUdata implements SensorEventListener {
     }
 
     /**
-     *  Update the orientation angles
+     *  Calculate the acceleration in the earth coordinates system
      */
-    private void updateOrientationAngles(){
+    private float[] calculateEarthAccelData(float[]InputData){
 
         float[] R = new float[16], I = new float[16], earthAcc = new float[16];
         SensorManager.getRotationMatrix(R,I, GravityData, MagneticData);
         float[] relativacc = new float[4];
         float[] inv = new float[16];
-        relativacc[0]=AccelerometerData[0];
-        relativacc[1]=AccelerometerData[1];
-        relativacc[2]=AccelerometerData[2];
+        relativacc[0]=InputData[0];
+        relativacc[1]=InputData[1];
+        relativacc[2]=InputData[2];
         relativacc[3]=0;
         android.opengl.Matrix.invertM(inv, 0, R, 0);
         android.opengl.Matrix.multiplyMV(earthAcc, 0, inv, 0, relativacc, 0);
-        Log.d(TAG, "earthAccelData : X = " + earthAcc[0] + " Y  = " + earthAcc[1] + " Z = " + earthAcc[2]);
-        Log.d(TAG, "GravityData : X = " + GravityData[0] + " Y  = " + GravityData[1] + " Z = " + GravityData[2]);
-        Log.d(TAG, "MagneticData : X = " + MagneticData[0] + " Y  = " + MagneticData[1] + " Z = " + MagneticData[2]);
-        Log.d(TAG, "AccelerometerData : X = " + AccelerometerData[0] + " Y  = " + AccelerometerData[1] + " Z = " + AccelerometerData[2]);
-        //getDirection(angle);
-        //return angle;
+        //Log.d(TAG, "earthAccelData : X = " + earthAcc[0] + " Y  = " + earthAcc[1] + " Z = " + earthAcc[2]);
+        //Log.d(TAG, "GravityData : X = " + GravityData[0] + " Y  = " + GravityData[1] + " Z = " + GravityData[2]);
+        //Log.d(TAG, "MagneticData : X = " + MagneticData[0] + " Y  = " + MagneticData[1] + " Z = " + MagneticData[2]);
+        //Log.d(TAG, "AccelerometerData : X = " + AccelerometerData[0] + " Y  = " + AccelerometerData[1] + " Z = " + AccelerometerData[2]);
+        return earthAcc;
     }
 
 

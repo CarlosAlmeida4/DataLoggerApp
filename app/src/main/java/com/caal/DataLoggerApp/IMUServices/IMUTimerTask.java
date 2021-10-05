@@ -32,13 +32,15 @@ public class IMUTimerTask extends TimerTask {
     /* NUmber of files created while app is running */
     static int AccelFileIterator = 0;
     static int LinearAccelFileIterator = 0;
+    static int earthLinearAccelFileIterator = 0;
+    static int earthAccelFileIterator = 0;
 
     /**
      *  Custom classes of this projects
      */
     private IMUdata SensorData;
     private MagStorage magStorage;
-    private AccelStorage accelStorage, linearAccelStorage;
+    private AccelStorage accelStorage, linearAccelStorage,earthLinearAccelStorage,earthAccelStorage;
 
     /* cyclic call to store IMU data, defaults to 1 second used in the filename*/
     private static int IMUTASK_PERIOD = 1000;
@@ -62,6 +64,8 @@ public class IMUTimerTask extends TimerTask {
         SensorData = new IMUdata();
         accelStorage = new AccelStorage();
         linearAccelStorage = new AccelStorage();
+        earthLinearAccelStorage = new AccelStorage();
+        earthAccelStorage = new AccelStorage();
 
         mTimerHandler = mTimerHandlerReceived;
         SensorData.IMUdataInit(ForegroundContext);
@@ -91,13 +95,18 @@ public class IMUTimerTask extends TimerTask {
                 String[] ret_val = saveAccel(interval/1000000);
                 String NotifMessage = " AccelX = " + ret_val[0] + " AccelY = " + ret_val[1] + " AccelZ= " + ret_val[2];
                 ret_val = saveLinearAccelerometer(interval/1000000);
-                NotifMessage = NotifMessage  + "\n linAccelX = " + ret_val[0] + " linAccelY = " + ret_val[1] + " linAccelZ= " + ret_val[2];
+                //NotifMessage = NotifMessage  + "\n linAccelX = " + ret_val[0] + " linAccelY = " + ret_val[1] + " linAccelZ= " + ret_val[2];
+
+                ret_val = saveEarthLinearAccelerometer(interval/1000000);
+                ret_val = saveEarthAccelerometer(interval/1000000);
                 Log.d(TAG,NotifMessage);
 
                 //Save to the file and check if its not writing while the shutdown is also writing a file
                 if(IMUFileLine == Utils.FILE_MAX_LINES && !isShutdownStage){
                     saveAccel2File();
                     saveLinearAccel2File();
+                    saveEarthLinearAccel2File();
+                    saveEarthAccel2File();
                     IMUFileLine = 0;
                 }
             }
@@ -137,8 +146,7 @@ public class IMUTimerTask extends TimerTask {
     }
 
     /**
-     *  gets the magnetic data from the SensorData object
-     *  TODO: implement the LinearAccelStorage class, if needed
+     *  gets the linear accelerometer data from the SensorData object
      *  TODO: might not be needed because this might be redundant data
      * @return a string with the 3 values of the linear accel sensor
      */
@@ -151,6 +159,40 @@ public class IMUTimerTask extends TimerTask {
         Float linearaccely = new Float(SensorData.linearAccelData[1]);
         Float linearaccelz = new Float(SensorData.linearAccelData[2]);
         linearAccelStorage.addToList(linearaccelx,linearaccely,linearaccelz,deltaInMiliSeconds);
+        return ret_val;
+    }
+
+    /**
+     *  gets the accelerometer data in earths axis from the SensorData object
+     *  TODO: might not be needed because this might be redundant data
+     * @return a string with the 3 values of the linear accel sensor
+     */
+    private String[] saveEarthAccelerometer(float deltaInMiliSeconds){
+        String[] ret_val = new String[3];
+        ret_val[1] = String.valueOf(SensorData.earthAccelData[1]);
+        ret_val[2] = String.valueOf(SensorData.earthAccelData[2]);
+        ret_val[0] = String.valueOf(SensorData.earthAccelData[0]);
+        Float linearaccelx = new Float(SensorData.earthAccelData[0]);
+        Float linearaccely = new Float(SensorData.earthAccelData[1]);
+        Float linearaccelz = new Float(SensorData.earthAccelData[2]);
+        earthAccelStorage.addToList(linearaccelx,linearaccely,linearaccelz,deltaInMiliSeconds);
+        return ret_val;
+    }
+
+    /**
+     *  gets the linear accelerometer data in earths axis from the SensorData object
+     *  TODO: might not be needed because this might be redundant data
+     * @return a string with the 3 values of the linear accel sensor
+     */
+    private String[] saveEarthLinearAccelerometer(float deltaInMiliSeconds){
+        String[] ret_val = new String[3];
+        ret_val[1] = String.valueOf(SensorData.linearEarthAccelData[1]);
+        ret_val[2] = String.valueOf(SensorData.linearEarthAccelData[2]);
+        ret_val[0] = String.valueOf(SensorData.linearEarthAccelData[0]);
+        Float linearaccelx = new Float(SensorData.linearEarthAccelData[0]);
+        Float linearaccely = new Float(SensorData.linearEarthAccelData[1]);
+        Float linearaccelz = new Float(SensorData.linearEarthAccelData[2]);
+        earthLinearAccelStorage.addToList(linearaccelx,linearaccely,linearaccelz,deltaInMiliSeconds);
         return ret_val;
     }
 
@@ -171,7 +213,6 @@ public class IMUTimerTask extends TimerTask {
         }
     }
 
-
     private void saveLinearAccel2File() {
         if(linearAccelStorage!=null){
             /*copy the currently running accel storage data to a local variable */
@@ -188,6 +229,37 @@ public class IMUTimerTask extends TimerTask {
         }
     }
 
+    private void saveEarthLinearAccel2File(){
+        if(earthLinearAccelStorage!=null){
+            /*copy the currently running accel storage data to a local variable */
+            AccelStorage local_accelStorage = new AccelStorage(earthLinearAccelStorage);
+            FileGenerator local_fileGenerator = new FileGenerator();
+            /* Start the thread with Handler.post*/
+            fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_LinearEarth"+
+                    IMUTASK_PERIOD + "_ms", local_accelStorage,
+                    mForegroundContext, earthLinearAccelFileIterator));
+            /* Increment iterator */
+            earthLinearAccelFileIterator++;
+            /* The data was passed to the Runnable, now we can clean the Storage lists */
+            earthLinearAccelStorage.clearAccelStorage();
+        }
+    }
+
+    private void saveEarthAccel2File(){
+        if(earthAccelStorage!=null){
+            /*copy the currently running accel storage data to a local variable */
+            AccelStorage local_accelStorage = new AccelStorage(earthAccelStorage);
+            FileGenerator local_fileGenerator = new FileGenerator();
+            /* Start the thread with Handler.post*/
+            fileWriterHandler.post(new FileWriteRunnableIMU(local_fileGenerator, "Test_Track_Earth"+
+                    IMUTASK_PERIOD + "_ms", local_accelStorage,
+                    mForegroundContext, earthAccelFileIterator));
+            /* Increment iterator */
+            earthAccelFileIterator++;
+            /* The data was passed to the Runnable, now we can clean the Storage lists */
+            earthAccelStorage.clearAccelStorage();
+        }
+    }
 
     public AccelStorage getAccelStorage(){
             if(accelStorage == null){
@@ -207,10 +279,35 @@ public class IMUTimerTask extends TimerTask {
         }
     }
 
+    public AccelStorage getEarthAccelStorage(){
+        if(earthAccelStorage == null){
+            return null;
+        }
+        else{
+            return earthAccelStorage;
+        }
+    }
+
+    public AccelStorage getEarthLinearAccelStorage(){
+        if(earthLinearAccelStorage == null){
+            return null;
+        }
+        else{
+            return earthLinearAccelStorage;
+        }
+    }
+
     public static int getAccelFileIterator(){
         return AccelFileIterator;
     }
     public static int getLinearAccelFileIterator(){
         return LinearAccelFileIterator;
     }
+    public static int getEarthAccelFileIterator (){
+        return earthAccelFileIterator ;
+    }
+    public static int getEarthLinearAccelFileIterator (){
+        return earthLinearAccelFileIterator ;
+    }
+
 }
