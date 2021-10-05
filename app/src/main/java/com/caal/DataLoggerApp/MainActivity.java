@@ -39,6 +39,8 @@ import android.net.Uri;
 
 import android.provider.Settings;
 import androidx.annotation.NonNull;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 
@@ -46,6 +48,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.Toast;
+
+import java.io.File;
 
 /**
  * The only activity in this sample.
@@ -101,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements
     // UI elements.
     private Button mRequestLocationUpdatesButton;
     private Button mRemoveLocationUpdatesButton;
+    private FloatingActionButton mShareAction;
     private NumberPicker dataRate;
 
 
@@ -147,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mRequestLocationUpdatesButton = (Button) findViewById(R.id.request_location_updates_button);
         mRemoveLocationUpdatesButton = (Button) findViewById(R.id.remove_location_updates_button);
+        mShareAction = (FloatingActionButton) findViewById(R.id.ShareAction);
         dataRate = (NumberPicker) findViewById(R.id.dataRate);
         final String[] mdisplayedValues = Utils.fillDataRate();
         Utils.dataRateConstructor(mdisplayedValues,dataRate);
@@ -167,6 +173,15 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 mService.removeLocationUpdates();
+            }
+        });
+
+        mShareAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO: https://stackoverflow.com/questions/28439439/android-studio-share-button
+                Toast.makeText(MainActivity.this, "Not yet implemented :(",
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
