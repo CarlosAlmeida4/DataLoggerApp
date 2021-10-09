@@ -42,8 +42,9 @@ public class FileGenerator {
 
         /* Create an APX file */
         /* Since this method is overloaded GPX files should not end up here*/
+        Log.d("storeTrack", "Data format : " + formattedDate.toString());
         //Set filepath
-        filepath = "ApxFiles";
+        filepath = formattedDate.toString();
         //Append filetype to the name
         FILE_NAME = FILE_NAME + ".Apx";
         trackFile = new File(context.getExternalFilesDir(filepath), FILE_NAME);
@@ -83,8 +84,9 @@ public class FileGenerator {
 
         /* Create an APX file */
         /* Since this method is overloaded GPX files should not end up here*/
+        Log.d("storeTrack", "Data format : " + formattedDate.toString());
         //Set filepath
-        filepath = "ApxFiles";
+        filepath = formattedDate.toString();
         //Append filetype to the name
         FILE_NAME = FILE_NAME + ".Apx";
         trackFile = new File(context.getExternalFilesDir(filepath), FILE_NAME);
@@ -125,8 +127,9 @@ public class FileGenerator {
 
         /* Create an APX file */
         /* Since this method is overloaded GPX files should not end up here*/
+        Log.d("storeTrack", "Data format : " + formattedDate.toString());
         //Set filepath
-        filepath = "GpxFiles";
+        filepath = formattedDate.toString();
         //Append filetype to the name
         FILE_NAME = FILE_NAME + ".Gpx";
         trackFile = new File(context.getExternalFilesDir(filepath), FILE_NAME);
@@ -162,8 +165,9 @@ public class FileGenerator {
 
         /* Create an APX file */
         /* Since this method is overloaded GPX files should not end up here*/
+        Log.d("storeTrack", "Data format : " + formattedDate.toString());
         //Set filepath
-        filepath = "GpxFiles";
+        filepath = formattedDate.toString();
         //Append filetype to the name
         FILE_NAME = FILE_NAME + ".Gpx";
         trackFile = new File(context.getExternalFilesDir(filepath), FILE_NAME);
