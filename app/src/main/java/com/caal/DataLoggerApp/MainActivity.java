@@ -24,6 +24,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -45,11 +46,14 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * The only activity in this sample.
@@ -102,11 +106,14 @@ public class MainActivity extends AppCompatActivity implements
     // Tracks the bound state of the service.
     private boolean mBound = false;
 
+    ArrayList<String> sRecordingList;
+
     // UI elements.
     private Button mRequestLocationUpdatesButton;
     private Button mRemoveLocationUpdatesButton;
     private FloatingActionButton mShareAction;
     private NumberPicker dataRate;
+    private ListView mRecordingList;
 
 
     // Monitors the state of the connection to the service.
@@ -125,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements
             mBound = false;
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements
         mRequestLocationUpdatesButton = (Button) findViewById(R.id.request_location_updates_button);
         mRemoveLocationUpdatesButton = (Button) findViewById(R.id.remove_location_updates_button);
         mShareAction = (FloatingActionButton) findViewById(R.id.ShareAction);
+        mRecordingList = (ListView) findViewById(R.id.RecordingList);
         dataRate = (NumberPicker) findViewById(R.id.dataRate);
         final String[] mdisplayedValues = Utils.fillDataRate();
         Utils.dataRateConstructor(mdisplayedValues,dataRate);
@@ -182,8 +191,26 @@ public class MainActivity extends AppCompatActivity implements
                 // TODO: https://stackoverflow.com/questions/28439439/android-studio-share-button
                 Toast.makeText(MainActivity.this, "Not yet implemented :(",
                         Toast.LENGTH_SHORT).show();
+                //Create a zip with the data
             }
         });
+
+        //Build the list of existing dates
+        sRecordingList = new ArrayList<String>();
+        File f = new File(this.getExternalFilesDir(null).toString());
+        File[] files = f.listFiles();
+        if(files != null){
+            for (File inFile : files) {
+                if (inFile.isDirectory()) {
+                    //get only the folder name
+                    String folderName = inFile.toString().replace(this.getExternalFilesDir(null).toString() + "/","");
+                    sRecordingList.add(folderName);
+                }
+            }
+        }
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.activity_listview, R.id.textView, sRecordingList);
+        mRecordingList.setAdapter(arrayAdapter);
 
         // Restore the state of the buttons when the activity (re)launches.
         setButtonsState(Utils.requestingLocationUpdates(this));
