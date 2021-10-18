@@ -6,6 +6,8 @@ import android.location.Location;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -14,9 +16,38 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class FileGenerator {
 
+
+    public boolean createZipfile(String folderName, Context context) throws IOException {
+
+        //Get date and append to filename
+        Date c = Calendar.getInstance().getTime();
+        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+        String formattedDate = df.format(c);
+
+        //Set filepath
+        String filepath =  folderName;
+        String zipName = folderName + ".zip";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Test String");
+
+
+        File f = new File(context.getExternalFilesDir(filepath),zipName);
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f));
+        ZipEntry e = new ZipEntry("mytext.txt");
+        out.putNextEntry(e);
+        byte[] data = sb.toString().getBytes();
+        out.write(data, 0, data.length);
+        out.closeEntry();
+
+        out.close();
+        return true;
+    }
     /**
      * @param trackName - name given to the track, if iteration is desired, trackName should always be the same
      * @param context   - current context

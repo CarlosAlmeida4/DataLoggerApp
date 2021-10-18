@@ -29,7 +29,7 @@ public class Utils {
 
     static final String KEY_REQUESTING_LOCATION_UPDATES = "requesting_location_updates";
     static private final int DATA_RATE_INDEX = 3;//FIXME: might not bee required
-    public static final int FILE_MAX_LINES = 10000; //Max lines is the maximum number of lines per file written
+    public static final int FILE_MAX_LINES = 2000; //Max lines is the maximum number of lines per file written
 
     /**
      * Returns true if requesting location updates, otherwise returns false.

@@ -46,6 +46,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
 
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -53,7 +54,12 @@ import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * The only activity in this sample.
@@ -114,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements
     private FloatingActionButton mShareAction;
     private NumberPicker dataRate;
     private ListView mRecordingList;
-
+    private String sSelectedRecording;
 
     // Monitors the state of the connection to the service.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -182,6 +188,19 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 mService.removeLocationUpdates();
+                Date c = Calendar.getInstance().getTime();
+                SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+                String formattedDate = df.format(c);
+                String folderName = formattedDate.toString();
+                if(sRecordingList.contains(folderName)){
+                    // Dont add the folder to the list since it already exists
+                }
+                else{
+                    sRecordingList.add(folderName);
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.activity_listview, R.id.textView, sRecordingList);
+                    mRecordingList.setAdapter(arrayAdapter);
+                }
+
             }
         });
 
@@ -189,9 +208,21 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 // TODO: https://stackoverflow.com/questions/28439439/android-studio-share-button
-                Toast.makeText(MainActivity.this, "Not yet implemented :(",
-                        Toast.LENGTH_SHORT).show();
-                //Create a zip with the data
+                if(sSelectedRecording != null){
+                    Toast.makeText(MainActivity.this, "The item selected is " + sSelectedRecording ,
+                            Toast.LENGTH_SHORT).show();
+                    //Create a zip with the data
+                    /**
+                     * File generator object declaration
+                     */
+                    FileGenerator fileGenerator = new FileGenerator();
+                    try {
+                        final boolean zipfile = fileGenerator.createZipfile(sSelectedRecording, MainActivity.this);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             }
         });
 
@@ -212,6 +243,15 @@ public class MainActivity extends AppCompatActivity implements
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.activity_listview, R.id.textView, sRecordingList);
         mRecordingList.setAdapter(arrayAdapter);
 
+        mRecordingList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //Toast.makeText(MainActivity.this, "The item selected is " + mRecordingList.getItemAtPosition(i),
+                //        Toast.LENGTH_SHORT).show();
+                sSelectedRecording = (String) mRecordingList.getItemAtPosition(i);
+            }
+        });
         // Restore the state of the buttons when the activity (re)launches.
         setButtonsState(Utils.requestingLocationUpdates(this));
 
