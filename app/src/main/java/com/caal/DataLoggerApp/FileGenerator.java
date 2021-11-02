@@ -30,22 +30,33 @@ public class FileGenerator {
         String formattedDate = df.format(c);
 
         //Set filepath
-        String filepath =  folderName;
+        String filepath =  context.getExternalFilesDir(folderName).toString();
         String zipName = folderName + ".zip";
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Test String");
+        File folder = new File(filepath);
+        File[] listOfFiles = folder.listFiles();
 
 
-        File f = new File(context.getExternalFilesDir(filepath),zipName);
-        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f));
-        ZipEntry e = new ZipEntry("mytext.txt");
-        out.putNextEntry(e);
-        byte[] data = sb.toString().getBytes();
-        out.write(data, 0, data.length);
-        out.closeEntry();
+        String[] NameFilestoZip = new String[listOfFiles.length];
+        String zipFile = context.getExternalFilesDir(folderName).toString() + zipName;
 
-        out.close();
+
+
+        for (int i = 0; i < listOfFiles.length ; i++ ) {
+            if (listOfFiles[i].isFile()) {
+                //Populate the String
+                NameFilestoZip[i] = listOfFiles[i].toString();
+            }
+        }
+
+        ZipUtility zipUtil = new ZipUtility();
+        try {
+            zipUtil.zip(NameFilestoZip, zipFile);
+        } catch (Exception ex) {
+            // some errors occurred
+            ex.printStackTrace();
+        }
+
         return true;
     }
     /**
