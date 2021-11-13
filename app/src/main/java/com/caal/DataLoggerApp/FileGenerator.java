@@ -21,7 +21,13 @@ import java.util.zip.ZipOutputStream;
 
 public class FileGenerator {
 
-
+    /**
+     *  creates a zipped folder with the input folder given
+     * @param folderName - name of the folder that will be zipped
+     * @param context - context of the activity
+     * @return - true if no exceptions are catched
+     * @throws IOException
+     */
     public boolean createZipfile(String folderName, Context context) throws IOException {
 
         //Get date and append to filename
@@ -36,11 +42,8 @@ public class FileGenerator {
         File folder = new File(filepath);
         File[] listOfFiles = folder.listFiles();
 
-
         String[] NameFilestoZip = new String[listOfFiles.length];
         String zipFile = context.getExternalFilesDir(folderName).toString() + zipName;
-
-
 
         for (int i = 0; i < listOfFiles.length ; i++ ) {
             if (listOfFiles[i].isFile()) {
@@ -52,13 +55,15 @@ public class FileGenerator {
         ZipUtility zipUtil = new ZipUtility();
         try {
             zipUtil.zip(NameFilestoZip, zipFile);
+            return true;
         } catch (Exception ex) {
             // some errors occurred
             ex.printStackTrace();
+            return false;
         }
 
-        return true;
     }
+
     /**
      * @param trackName - name given to the track, if iteration is desired, trackName should always be the same
      * @param context   - current context

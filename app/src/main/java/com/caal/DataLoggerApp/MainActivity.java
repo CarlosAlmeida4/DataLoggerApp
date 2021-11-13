@@ -216,11 +216,22 @@ public class MainActivity extends AppCompatActivity implements
                      * File generator object declaration
                      */
                     FileGenerator fileGenerator = new FileGenerator();
+                    //Create zip file
                     try {
                         final boolean zipfile = fileGenerator.createZipfile(sSelectedRecording, MainActivity.this);
+                        if(!zipfile){
+                            Toast.makeText(MainActivity.this, "Did not create a zip file successfully" ,
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    /*final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("image/jpg");
+                    final File photoFile = new File(getFilesDir(), "foo.jpg");
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(photoFile));
+                    startActivity(Intent.createChooser(shareIntent, "Share image using"));*/
+
                 }
 
             }
