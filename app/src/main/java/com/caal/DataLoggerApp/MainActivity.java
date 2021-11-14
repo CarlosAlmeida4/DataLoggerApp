@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements
                 String zipFileName = new String();
                 // TODO: https://stackoverflow.com/questions/28439439/android-studio-share-button
                 if(sSelectedRecording != null){
-                    Toast.makeText(MainActivity.this, "The item selected is " + sSelectedRecording ,
+                    Toast.makeText(MainActivity.this, "Give it some time, the share window takes some time" ,
                             Toast.LENGTH_SHORT).show();
                     //Create a zip with the data
                     /**
