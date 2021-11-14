@@ -27,6 +27,8 @@ import android.location.Location;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+
+import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -207,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements
         mShareAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String zipFileName = new String();
                 // TODO: https://stackoverflow.com/questions/28439439/android-studio-share-button
                 if(sSelectedRecording != null){
                     Toast.makeText(MainActivity.this, "The item selected is " + sSelectedRecording ,
@@ -218,19 +221,22 @@ public class MainActivity extends AppCompatActivity implements
                     FileGenerator fileGenerator = new FileGenerator();
                     //Create zip file
                     try {
-                        final boolean zipfile = fileGenerator.createZipfile(sSelectedRecording, MainActivity.this);
-                        if(!zipfile){
+                        final String zipfileFlag = fileGenerator.createZipfile(sSelectedRecording, MainActivity.this);
+                        zipFileName = zipfileFlag;
+                        if(zipfileFlag == "Error"){
                             Toast.makeText(MainActivity.this, "Did not create a zip file successfully" ,
                                     Toast.LENGTH_SHORT).show();
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    /*final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                    shareIntent.setType("image/jpg");
-                    final File photoFile = new File(getFilesDir(), "foo.jpg");
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(photoFile));
-                    startActivity(Intent.createChooser(shareIntent, "Share image using"));*/
+                    File zipFile = new File(zipFileName);
+                    Uri uri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + "." + getLocalClassName() + ".provider", zipFile);
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                    sendIntent.setType("application/zip");
+                    startActivity(sendIntent);
 
                 }
 

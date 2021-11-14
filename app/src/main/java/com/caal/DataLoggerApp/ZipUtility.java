@@ -21,6 +21,7 @@ public class ZipUtility {
      * A constants for buffer size used to read/write data
      */
     private static final int BUFFER_SIZE = 4096;
+    public File zipFile;
     /**
      * Compresses a list of files to a destination zip file
      * @param listFiles A collection of files and directories

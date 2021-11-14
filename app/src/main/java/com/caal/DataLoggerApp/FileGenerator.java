@@ -28,7 +28,7 @@ public class FileGenerator {
      * @return - true if no exceptions are catched
      * @throws IOException
      */
-    public boolean createZipfile(String folderName, Context context) throws IOException {
+    public String createZipfile(String folderName, Context context) throws IOException {
 
         //Get date and append to filename
         Date c = Calendar.getInstance().getTime();
@@ -43,7 +43,7 @@ public class FileGenerator {
         File[] listOfFiles = folder.listFiles();
 
         String[] NameFilestoZip = new String[listOfFiles.length];
-        String zipFile = context.getExternalFilesDir(folderName).toString() + zipName;
+        String zipFile = context.getExternalFilesDir(folderName).toString() + ".zip";
 
         for (int i = 0; i < listOfFiles.length ; i++ ) {
             if (listOfFiles[i].isFile()) {
@@ -55,11 +55,11 @@ public class FileGenerator {
         ZipUtility zipUtil = new ZipUtility();
         try {
             zipUtil.zip(NameFilestoZip, zipFile);
-            return true;
+            return zipFile;
         } catch (Exception ex) {
             // some errors occurred
             ex.printStackTrace();
-            return false;
+            return "Error";
         }
 
     }
